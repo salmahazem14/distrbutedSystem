@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YumYum | Edit Dish</title>
+    <style>
+        :root {
+            --primary-purple: #8a4fff;
+            --light-purple: #e2d4ff;
+            --lighter-purple: #f5f0ff;
+            --white: #ffffff;
+            --soft-shadow: 0 4px 12px rgba(138, 79, 255, 0.1);
+            --card-radius: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #faf5ff;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30,30 Q50,10 70,30 T90,50 Q70,70 50,90 T10,50 Q30,30 50,10 Z" fill="none" stroke="%238a4fff" stroke-width="0.5" opacity="0.1"/></svg>');
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-purple);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .logo h1 {
+            color: var(--primary-purple);
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--light-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-purple);
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-purple);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .edit-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: var(--card-radius);
+            box-shadow: var(--soft-shadow);
+            padding: 30px;
+        }
+        
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-purple);
+        }
+        
+        .edit-title {
+            color: var(--primary-purple);
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .delete-btn {
+            background-color: #ffebee;
+            color: #f44336;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background-color: #ffcdd2;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-purple);
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-purple);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: var(--lighter-purple);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(138, 79, 255, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            border: 2px dashed var(--light-purple);
+            border-radius: var(--card-radius);
+            background-color: var(--lighter-purple);
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .image-upload:hover {
+            border-color: var(--primary-purple);
+            background-color: var(--white);
+        }
+        
+        .image-upload-icon {
+            font-size: 40px;
+            color: var(--primary-purple);
+            margin-bottom: 10px;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--card-radius);
+            display: none;
+        }
+        
+        .price-input {
+            position: relative;
+        }
+        
+        .price-input:before {
+            content: '$';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-purple);
+            font-weight: 500;
+        }
+        
+        .price-input .form-control {
+            padding-left: 30px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .cancel-btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--white);
+            color: var(--primary-purple);
+            border: 2px solid var(--light-purple);
+        }
+        
+        .cancel-btn:hover {
+            background-color: var(--lighter-purple);
+        }
+        
+        .save-btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+        }
+        
+        .save-btn:hover {
+            background-color: #7a3fe6;
+            box-shadow: 0 4px 12px rgba(138, 79, 255, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .cancel-btn, .save-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Dish Seller</h1>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">C</div>
+            <span>Chef Maria</span>
+        </div>
+    </header>
+    
+    <a href="DishSellerDashboard.html" class="back-btn">← Back to Dashboard</a>
+    
+    <div class="edit-container">
+        <div class="edit-header">
+            <h2 class="edit-title">Edit Dish</h2>
+            <button class="delete-btn">
+                🗑️ Delete Dish
+            </button>
+        </div>
+        
+        <div class="image-upload" id="imageUpload">
+            <div class="image-upload-icon">🍕</div>
+            <p>Click to change dish image</p>
+            <img id="imagePreview" class="image-preview" alt="Dish preview">
+        </div>
+        
+        <div class="form-group">
+            <label for="dishName" class="form-label">Dish Name</label>
+            <input type="text" id="dishName" class="form-control" value="Homemade Margherita Pizza">
+        </div>
+        
+        <div class="form-group price-input">
+            <label for="dishPrice" class="form-label">Price</label>
+            <input type="number" id="dishPrice" class="form-control" value="14.99" step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="dishDescription" class="form-label">Description</label>
+            <textarea id="dishDescription" class="form-control">Traditional Neapolitan pizza with fresh basil, mozzarella di bufala, and San Marzano tomato sauce. Our family recipe has been passed down for generations and uses only the finest ingredients imported from Italy.</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="dishCategory" class="form-label">Category</label>
+            <select id="dishCategory" class="form-control">
+                <option value="italian" selected>Italian</option>
+                <option value="mexican">Mexican</option>
+                <option value="indian">Indian</option>
+                <option value="american">American</option>
+                <option value="asian">Asian</option>
+                <option value="dessert">Dessert</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="dishIngredients" class="form-label">Ingredients (comma separated)</label>
+            <input type="text" id="dishIngredients" class="form-control" value="Pizza dough, San Marzano tomatoes, Fresh mozzarella, Basil leaves, Olive oil, Salt">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Availability</label>
+            <div style="display: flex; gap: 15px;">
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="availability" checked> Available
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="availability"> Out of Stock
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button class="cancel-btn" onclick="location.href='DishSellerDashboard.html'">Cancel</button>
+            <button class="save-btn">Save Changes</button>
+        </div>
+    </div>
+    
+    <script>
+        // Simple image upload preview functionality
+        document.getElementById('imageUpload').addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = e => { 
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    document.querySelector('.image-upload-icon').style.display = 'none';
+                    document.querySelector('#imageUpload p').style.display = 'none';
+                }
+                
+                reader.readAsDataURL(file);
+            }
+            
+            input.click();
+        });
+        
+        // Confirm before deleting
+        document.querySelector('.delete-btn').addEventListener('click', function() {
+            if(confirm('Are you sure you want to delete this dish? This action cannot be undone.')) {
+                alert('Dish deleted successfully.');
+                location.href = 'DishSellerDashboard.html';
+            }
+        });
+        
+        // Save changes
+        document.querySelector('.save-btn').addEventListener('click', function() {
+            alert('Changes saved successfully!');
+            location.href = 'DishSellerDashboard.html';
+        });
+    </script>
+</body>
+</html>
