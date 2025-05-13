@@ -223,27 +223,97 @@
             <p>Manage homemade deliciousness</p>
         </div>
         
-        <form>
+         <form id="loginForm">
             <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter your username" required>
-                <span class="icon">👩‍🍳</span>
+                <label for="email">Email</label>
+                <!-- Change id to "email" to match JavaScript -->
+                <input type="email" id="email" placeholder="Enter your email" required>
+                <span class="icon">✉️</span>
+                <div id="emailError" class="error-message"></div>
             </div>
             
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" placeholder="Enter your password" required>
                 <span class="icon">🔒</span>
+                <div id="passwordError" class="error-message"></div>
             </div>
             
            
-            
             <button type="submit" class="login-button">Log In</button>
+            
+            <!-- Add login error container -->
+            <div id="loginError" class="error-message"></div>
             
             <div class="register-link">
                 Don't have an account? <a href="CustomerRegister.html">Register</a>
             </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/customers/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed');
+                }
+                
+                const data = await response.json();
+                console.log('Login successful:', data);
+                
+                // Redirect to dashboard
+                window.location.href = 'CustomerDashboard.html';
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                const errorElement = document.getElementById('loginError');
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+                
+                // Highlight specific field errors
+                if (error.message.toLowerCase().includes('email')) {
+                    document.getElementById('emailError').textContent = error.message;
+                    document.getElementById('emailError').style.display = 'block';
+                }
+                if (error.message.toLowerCase().includes('password')) {
+                    document.getElementById('passwordError').textContent = error.message;
+                    document.getElementById('passwordError').style.display = 'block';
+                }
+            }
+        });
+        
+        // Auto-fill if remembered
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('email').value = userData.email || '';
+                document.getElementById('rememberMe').checked = !!localStorage.getItem('user');
+            }
+        });
+    </script>
 </body>
 </html>
