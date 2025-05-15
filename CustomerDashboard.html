@@ -427,6 +427,21 @@
             margin-bottom: 10px;
         }
         
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             .dashboard-title {
                 flex-direction: column;
@@ -473,107 +488,14 @@
         </div>
         
         <div class="tab-content active" id="current-orders">
-            <!-- Current Order 1 -->
+            <!-- Orders will be loaded here dynamically -->
             <div class="order-card">
-                <div class="order-header">
-                    <div>
-                        <span class="order-id">Order #YM-2023-0015</span>
-                        <span class="order-date"> - Today, 10:30 AM</span>
-                    </div>
-                    <span class="order-status status-pending">Preparing</span>
-                </div>
-                <div class="order-items">
-                    <div class="order-item">
-                        <span class="item-name">Homemade Margherita Pizza</span>
-                        <span class="item-price">1 × $14.99</span>
-                    </div>
-                    <div class="order-item">
-                        <span class="item-name">Garlic Bread</span>
-                        <span class="item-price">2 × $4.50</span>
-                    </div>
-                </div>
-                <div class="order-total">
-                    Total: $23.99
-                </div>
-            </div>
-            
-            <!-- Current Order 2 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <div>
-                        <span class="order-id">Order #YM-2023-0014</span>
-                        <span class="order-date"> - Yesterday, 7:15 PM</span>
-                    </div>
-                    <span class="order-status status-pending">On the way</span>
-                </div>
-                <div class="order-items">
-                    <div class="order-item">
-                        <span class="item-name">Chicken Tikka Masala</span>
-                        <span class="item-price">1 × $13.75</span>
-                    </div>
-                    <div class="order-item">
-                        <span class="item-name">Naan Bread</span>
-                        <span class="item-price">3 × $2.99</span>
-                    </div>
-                    <div class="order-item">
-                        <span class="item-name">Mango Lassi</span>
-                        <span class="item-price">1 × $3.50</span>
-                    </div>
-                </div>
-                <div class="order-total">
-                    Total: $27.22
-                </div>
+                <p style="text-align: center; color: #888;">Loading orders...</p>
             </div>
         </div>
         
         <div class="tab-content" id="past-orders">
-            <!-- Past Order 1 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <div>
-                        <span class="order-id">Order #YM-2023-0013</span>
-                        <span class="order-date"> - 3 days ago</span>
-                    </div>
-                    <span class="order-status status-completed">Delivered</span>
-                </div>
-                <div class="order-items">
-                    <div class="order-item">
-                        <span class="item-name">Grandma's Lasagna</span>
-                        <span class="item-price">2 × $12.50</span>
-                    </div>
-                    <div class="order-item">
-                        <span class="item-name">Caesar Salad</span>
-                        <span class="item-price">1 × $8.99</span>
-                    </div>
-                </div>
-                <div class="order-total">
-                    Total: $33.99
-                </div>
-            </div>
-            
-            <!-- Past Order 2 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <div>
-                        <span class="order-id">Order #YM-2023-0010</span>
-                        <span class="order-date"> - 1 week ago</span>
-                    </div>
-                    <span class="order-status status-completed">Delivered</span>
-                </div>
-                <div class="order-items">
-                    <div class="order-item">
-                        <span class="item-name">Chocolate Lava Cake</span>
-                        <span class="item-price">1 × $8.99</span>
-                    </div>
-                    <div class="order-item">
-                        <span class="item-name">Vanilla Ice Cream</span>
-                        <span class="item-price">2 × $3.50</span>
-                    </div>
-                </div>
-                <div class="order-total">
-                    Total: $15.99
-                </div>
-            </div>
+            <!-- Orders will be loaded here dynamically -->
         </div>
     </main>
     
@@ -614,7 +536,6 @@
             </div>
             
             <div class="selected-items" id="selectedItems">
-                <!-- Selected items will appear here -->
                 <p style="text-align: center; color: #888;">No items selected yet</p>
             </div>
             
@@ -644,7 +565,7 @@
             <h3 class="confirmation-message">Your order has been placed!</h3>
             
             <div class="order-details">
-                <div class="order-number">Order #YM-2023-0016</div>
+                <div class="order-number">Order #</div>
                 <p>Estimated delivery: <strong>45 minutes</strong></p>
                 <p>You'll receive a notification when your order is on its way.</p>
             </div>
@@ -678,7 +599,12 @@
         const newOrderBtn = document.getElementById('newOrderBtn');
         const newOrderModal = document.getElementById('newOrderModal');
         const closeModalBtn = document.querySelector('.close-modal');
-        
+
+        const user = JSON.parse(localStorage.getItem("user"));
+        const customerId = user.id;
+        console.log("Customer ID from localStorage:", customerId);
+
+    
         newOrderBtn.addEventListener('click', () => {
             newOrderModal.style.display = 'flex';
         });
@@ -812,25 +738,239 @@
                 alert('Please select at least one item');
                 return;
             }
+
+            // Get user from localStorage
+           // Fetch the user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            // Check if user data exists
+            if (user) {
+                console.log("User ID:", user.id); // Access the user id
+            } else {
+                console.log("No user data found in localStorage.");
+            }
+
+            console.log(user.id);
+
+            // Show loading state
+            submitOrderBtn.disabled = true;
+            submitOrderBtn.innerHTML = `<span class="loading"></span> Processing...`;
+
+            // Prepare order items for backend
+            const orderItems = selectedItems.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            }));
+
+            // Calculate subtotal
+            const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = 3.99;
+            const total = subtotal + deliveryFee;
             
-            newOrderModal.style.display = 'none';
-            confirmationModal.style.display = 'flex';
+            // Create order payload
+            const orderData = {
+                customerId: user.id,
+                items: orderItems,
+                totalPrice: total,
+                status: "pending",
+                paymentConfirmed: false,
+                shippingCompanyId: null
+            };
+
+            // Submit to backend
+            fetch('http://localhost:8082/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(newOrder => {
+                // Show confirmation with actual order ID from backend
+                document.querySelector('.order-number').textContent = `Order #${newOrder.id}`;
+                newOrderModal.style.display = 'none';
+                confirmationModal.style.display = 'flex';
+                
+                // Reset the form
+                resetOrderForm();
+                
+                // Refresh orders list
+                setTimeout(() => {
+                    loadOrders(user.id);
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error creating order:', error);
+                alert('Failed to place order. Please try again.');
+            })
+            .finally(() => {
+                submitOrderBtn.disabled = false;
+                submitOrderBtn.textContent = 'Place Order';
+            });
+        });
+
+        // Function to load orders
+function loadOrders(customerId) {
+    const currentOrdersContainer = document.getElementById('current-orders');
+    const pastOrdersContainer = document.getElementById('past-orders');
+
+    fetch(`http://localhost:8082/api/orders/getAllOrdersByCustomerId/${customerId}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(async orders => {
+            currentOrdersContainer.innerHTML = '';
+            pastOrdersContainer.innerHTML = '';
+
+            if (!orders || orders.length === 0) {
+                const noOrdersMsg = `<div class="order-card">
+                    <p style="text-align: center; color: #888;">No orders found</p>
+                </div>`;
+                currentOrdersContainer.innerHTML = noOrdersMsg;
+                return;
+            }
+
+            for (const order of orders) {
+                try {
+                    const itemRes = await fetch(`http://localhost:8082/api/order-items/getItemsByOrderId/${order.id}`);
+                    const orderItems = itemRes.ok ? await itemRes.json() : [];
+
+                    const orderHTML = createOrderCard(order, orderItems);
+                    if (order.status.toLowerCase() === 'completed' || order.status.toLowerCase() === 'delivered') {
+                        pastOrdersContainer.innerHTML += orderHTML;
+                    } else {
+                        currentOrdersContainer.innerHTML += orderHTML;
+                    }
+                } catch (itemErr) {
+                    console.error("Failed to fetch order items:", itemErr);
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Error loading orders:", error);
+            const errorMsg = `<div class="order-card">
+                <p style="text-align: center; color: #f44336;">Error loading orders. Please refresh the page.</p>
+            </div>`;
+            currentOrdersContainer.innerHTML = errorMsg;
+        });
+}
+
+function createOrderCard(order, orderItems = []) {
+    console.log("Order data received:", order);
+
+    // Format createdAt
+    let orderDate = 'Date not available';
+    if (order.createdAt) {
+        try {
+            const dateObj = new Date(order.createdAt);
+            if (!isNaN(dateObj)) {
+                orderDate = dateObj.toLocaleString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        } catch (e) {
+            console.error("Date formatting error:", e);
+        }
+    }
+
+    // Format totalPrice
+    let totalPrice = '0.00';
+    if (order.totalPrice !== undefined && order.totalPrice !== null) {
+        try {
+            const price = parseFloat(order.totalPrice);
+            if (!isNaN(price)) {
+                totalPrice = price.toFixed(2);
+            }
+        } catch (e) {
+            console.error("Price formatting error:", e);
+        }
+    }
+
+    // Format status
+    const displayStatus = order.status || 'Processing';
+    const statusClass = getStatusClass(displayStatus);
+
+    // Render order items
+    const itemsHTML = orderItems.map(item => `
+        <div class="order-item">
+            <span>${item.name} - ${item.quantity} × $${parseFloat(item.price).toFixed(2)}</span>
+        </div>`).join('');
+
+    return `
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <span class="order-id">Order #${order.id}</span>
+                    <span class="order-date"> - ${orderDate}</span>
+                </div>
+                <span class="order-status ${statusClass}">${displayStatus}</span>
+            </div>
+            <div class="order-items">
+                ${itemsHTML || '<span style="color: #aaa;">No items found.</span>'}
+            </div>
+            <div class="order-total">
+                Total: $${totalPrice}
+            </div>
+        </div>`;
+}
+
+
+        function getStatusClass(status) {
+            if (!status) return '';
             
-            // In a real app, you would send the order to your server here
-            // For this demo, we'll just show the confirmation
-            
-            // Reset the order form
+            const statusLower = status.toLowerCase();
+            if (statusLower.includes('completed') || statusLower.includes('delivered')) {
+                return 'status-completed';
+            } else if (statusLower.includes('cancelled')) {
+                return 'status-cancelled';
+            } else {
+                return 'status-pending';
+            }
+        }
+
+        // Helper function to reset the order form
+        function resetOrderForm() {
             selectedItems = [];
             document.querySelectorAll('.dish-option').forEach(option => {
                 option.classList.remove('selected');
             });
             updateSelectedItemsDisplay();
             calculateTotal();
-        });
-        
+        }
+
+        // Close confirmation modal
         closeConfirmationBtn.addEventListener('click', () => {
             confirmationModal.style.display = 'none';
+        });
+
+        // Initialize the page by loading orders
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (user && user.id) {
+                loadOrders(user.id);
+            } else {
+                console.error("User not found in localStorage");
+                document.getElementById('current-orders').innerHTML = `
+                    <div class="order-card">
+                        <p style="text-align: center; color: #f44336;">Please login to view your orders</p>
+                    </div>`;
+            }
         });
     </script>
 </body>
 </html>
+

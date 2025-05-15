@@ -87,8 +87,6 @@
             margin: 0 auto;
         }
         
-    
-      
         .filter-controls {
             display: flex;
             gap: 15px;
@@ -161,8 +159,6 @@
             align-items: center;
         }
         
-
-        
         .action-btn {
             padding: 6px 12px;
             border-radius: 6px;
@@ -222,6 +218,12 @@
             background-color: var(--lighter-purple);
         }
         
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-purple);
+        }
+        
         @media (max-width: 768px) {
             body {
                 padding: 20px;
@@ -237,10 +239,6 @@
                 align-items: flex-start;
                 gap: 15px;
             }
-            
-           
-            
-          
         }
     </style>
 </head>
@@ -259,10 +257,7 @@
     <div class="main-content">
         <h2 class="page-title">
             Customer Accounts
-           
-        </h2> 
-            </div>
-        </div>
+        </h2>
         
         <table class="customers-table">
             <thead>
@@ -270,74 +265,17 @@
                     <th>Customer</th>
                     <th>Email</th>
                     <th>Location</th>
-                    <th>Orders</th>
+                    <th>Balance</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="customersTableBody">
                 <tr>
-                    <td>
-                        <div class="customer-name">
-                            <div class="customer-avatar">S</div>
-                            Sarah Johnson
-                        </div>
-                    </td>
-                    <td>sarah.j@example.com</td>
-                    <td>New York, NY</td>
-                    <td>24</td>
-
-                </tr>
-                <tr>
-                    <td>
-                        <div class="customer-name">
-                            <div class="customer-avatar">M</div>
-                            Michael Chen
-                        </div>
-                    </td>
-                    <td>michael.c@example.com</td>
-                    <td>San Francisco, CA</td>
-                    <td>15</td>
-                    
-                </tr>
-                <tr>
-                    <td>
-                        <div class="customer-name">
-                            <div class="customer-avatar">E</div>
-                            Emma Rodriguez
-                        </div>
-                    </td>
-                    <td>emma.r@example.com</td>
-                    <td>Chicago, IL</td>
-                    <td>8</td>
-                   
-                </tr>
-                <tr>
-                    <td>
-                        <div class="customer-name">
-                            <div class="customer-avatar">D</div>
-                            David Kim
-                        </div>
-                    </td>
-                    <td>david.k@example.com</td>
-                    <td>Boston, MA</td>
-                    <td>32</td>
-                    
-                </tr>
-                <tr>
-                    <td>
-                        <div class="customer-name">
-                            <div class="customer-avatar">J</div>
-                            Jessica Williams
-                        </div>
-                    </td>
-                    <td>jessica.w@example.com</td>
-                    <td>Austin, TX</td>
-                    <td>5</td>
-                    
+                    <td colspan="5" class="loading">Loading customers...</td>
                 </tr>
             </tbody>
         </table>
         
-        <div class="pagination">
+        <div class="pagination" id="pagination">
             <button class="page-btn">❮</button>
             <button class="page-btn active">1</button>
             <button class="page-btn">2</button>
@@ -345,5 +283,80 @@
             <button class="page-btn">❯</button>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCustomers();
+        });
+
+        function fetchCustomers() {
+            const apiUrl = 'http://localhost:8083/api/customers/getAllCustomers';
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayCustomers(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching customers:', error);
+                    const tableBody = document.getElementById('customersTableBody');
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="color: red; text-align: center;">
+                                Error loading customers. Please try again later.
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function displayCustomers(customers) {
+            const tableBody = document.getElementById('customersTableBody');
+            
+            if (customers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            No customers found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            customers.forEach(customer => {
+                const firstLetter = customer.username ? customer.username.charAt(0).toUpperCase() : '?';
+                const location = customer.location || 'Not specified';
+                const balance = customer.balance !== undefined ? `$${customer.balance.toFixed(2)}` : '$0.00';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div class="customer-name">
+                                <div class="customer-avatar">${firstLetter}</div>
+                                ${customer.username}
+                            </div>
+                        </td>
+                        <td>${customer.email}</td>
+                        <td>${location}</td>
+                        <td>${balance}</td>
+                        
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+            
+           
+        }
+
+        
+    </script>
 </body>
 </html>

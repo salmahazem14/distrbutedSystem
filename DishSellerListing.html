@@ -141,8 +141,6 @@
             color: #555;
         }
         
-    
-        
         .action-btn {
             padding: 6px 12px;
             border-radius: 6px;
@@ -202,6 +200,12 @@
             background-color: var(--lighter-purple);
         }
         
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-purple);
+        }
+        
         @media (max-width: 768px) {
             body {
                 padding: 20px;
@@ -235,82 +239,99 @@
     <div class="main-content">
         <h2 class="page-title">
             Dish Preparation Companies
-            
+            <button class="add-company-btn" id="addCompanyBtn">
+                <span>+</span> Add Company
+            </button>
         </h2>
         
         <table class="companies-table">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Company Name</th>
-                    <th>Location</th>
-                    <th>Contact</th>
-                    <th>Specialty</th>
-                  
-                    <th>Actions</th>
+                
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="companiesTableBody">
                 <tr>
-                    <td>Homemade Delights Kitchen</td>
-                    <td>New York, NY</td>
-                    <td>contact@homedelights.com</td>
-                    <td>Bakery & Desserts</td>
-                    
-                    <td>
-                        <button class="action-btn edit-btn">Edit</button>
-                        <button class="action-btn delete-btn">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Grandma's Recipes Co.</td>
-                    <td>Chicago, IL</td>
-                    <td>info@grandmasrecipes.com</td>
-                    <td>Traditional Meals</td>
-                    <td>
-                        <button class="action-btn edit-btn">Edit</button>
-                        <button class="action-btn delete-btn">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Artisan Food Hub</td>
-                    <td>San Francisco, CA</td>
-                    <td>support@artisanhub.com</td>
-                    <td>Gourmet Specialties</td>
-                    <td>
-                        <button class="action-btn edit-btn">Edit</button>
-                        <button class="action-btn delete-btn">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Family Kitchen Collective</td>
-                    <td>Austin, TX</td>
-                    <td>hello@familykitchen.com</td>
-                    <td>Varied Cuisines</td>
-                    <td>
-                        <button class="action-btn edit-btn">Edit</button>
-                        <button class="action-btn delete-btn">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Heritage Foods Inc.</td>
-                    <td>Boston, MA</td>
-                    <td>contact@heritagefoods.com</td>
-                    <td>Ethnic Cuisines</td>
-                    <td>
-                        <button class="action-btn edit-btn">Edit</button>
-                        <button class="action-btn delete-btn">Delete</button>
-                    </td>
+                    <td colspan="3" class="loading">Loading companies...</td>
                 </tr>
             </tbody>
         </table>
         
-        <div class="pagination">
-            <button class="page-btn">❮</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn">❯</button>
+        <div class="pagination" id="pagination">
+            <!-- Pagination will be added dynamically if needed -->
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch companies from API
+            fetchCompanies();
+            
+            // Add event listener for add company button
+           document.getElementById('addCompanyBtn').addEventListener('click', function() {
+    window.location.href = 'DishSellerAccount.html';
+        });
+        });
+
+        function fetchCompanies() {
+            const apiUrl = 'http://localhost:8083/api/dish-sellers/getAllDishSellers';
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayCompanies(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching companies:', error);
+                    const tableBody = document.getElementById('companiesTableBody');
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="3" style="color: red; text-align: center;">
+                                Error loading companies. Please try again later.
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function displayCompanies(companies) {
+            const tableBody = document.getElementById('companiesTableBody');
+            
+            if (companies.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center;">
+                            No companies found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            companies.forEach(company => {
+                html += `
+                    <tr>
+                        <td>${company.id}</td>
+                        <td>${company.companyName}</td>
+                        
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+            
+    
+        }
+
+       
+    </script>
 </body>
 </html>

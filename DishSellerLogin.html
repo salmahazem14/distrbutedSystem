@@ -152,6 +152,13 @@
             box-shadow: 0 6px 12px rgba(138, 79, 255, 0.2);
         }
         
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
         .decoration {
             position: absolute;
             width: 30px;
@@ -207,10 +214,12 @@
             <p>Manage homemade deliciousness</p>
         </div>
         
-        <form>
+        <form id="loginForm">
+            <div class="error-message" id="errorMessage"></div>
+            
             <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter your username" required>
+                <label for="companyName">Company Name</label>
+                <input type="text" id="companyName" placeholder="Enter your company name" required>
                 <span class="icon">👩‍🍳</span>
             </div>
             
@@ -220,10 +229,72 @@
                 <span class="icon">🔒</span>
             </div>
             
-        
-            
-            <button type="submit" class="login-button">Log In</button>
+            <button type="submit" class="login-button" id="loginButton">Log In</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const companyName = document.getElementById('companyName').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const loginButton = document.getElementById('loginButton');
+            
+            // Reset error message
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+            
+            // Validate inputs
+            if (!companyName || !password) {
+                showError('Please enter both company name and password');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                loginButton.disabled = true;
+                loginButton.textContent = 'Logging in...';
+                
+                // Make API call to login
+                const response = await fetch('http://localhost:8083/api/dish-sellers/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        companyName: companyName,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed');
+                }
+                
+                const data = await response.json();
+                
+                // Successful login - redirect to dashboard or store token
+                console.log('Login successful:', data);
+                window.location.href = 'DishSellerDashboard.html'; // Change to your dashboard page
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'Invalid company name or password');
+            } finally {
+                // Reset button state
+                loginButton.disabled = false;
+                loginButton.textContent = 'Log In';
+            }
+        });
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+    </script>
 </body>
 </html>

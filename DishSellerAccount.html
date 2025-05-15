@@ -263,7 +263,7 @@
         
         .modal p {
             color: #555;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             line-height: 1.5;
         }
         
@@ -277,10 +277,19 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 10px;
         }
         
         .modal-btn:hover {
             background-color: #7a3fe6;
+        }
+        
+        #generatedPassword {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
         }
         
         @media (max-width: 768px) {
@@ -325,7 +334,7 @@
             
             <div class="action-buttons">
                 <button class="save-btn" id="saveBtn">Save Account</button>
-                <button class="cancel-btn">Cancel</button>
+                <button class="cancel-btn" id="cancelBtn">Cancel</button>
             </div>
         </div>
     </div>
@@ -345,21 +354,14 @@
         <div class="modal">
             <div class="modal-icon success-icon">✓</div>
             <h3>Account Created</h3>
-            <p>The company account has been successfully created with the generated password.</p>
+            <p>The company account <strong id="createdCompanyName"></strong> has been successfully created.</p>
+            <p>Generated password: <code id="generatedPassword"></code></p>
+            <p class="password-warning">Please save this password securely. It won't be shown again.</p>
             <button class="modal-btn" id="successOkBtn">OK</button>
         </div>
     </div>
 
     <script>
-        // Sample list of existing companies (in a real app, this would come from your database)
-        const existingCompanies = [
-            "Homemade Delights Kitchen",
-            "Grandma's Recipes Co.",
-            "Artisan Food Hub",
-            "Family Kitchen Collective",
-            "Heritage Foods Inc."
-        ];
-        
         // Generate random password
         function generatePassword() {
             const length = 12;
@@ -379,17 +381,20 @@
         const companyPasswordInput = document.getElementById('companyPassword');
         const generateBtn = document.getElementById('generateBtn');
         const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
         const duplicateModal = document.getElementById('duplicateModal');
         const successModal = document.getElementById('successModal');
         const modalOkBtn = document.getElementById('modalOkBtn');
         const successOkBtn = document.getElementById('successOkBtn');
+        const createdCompanyName = document.getElementById('createdCompanyName');
+        const generatedPassword = document.getElementById('generatedPassword');
         
         // Event listeners
         generateBtn.addEventListener('click', () => {
             companyPasswordInput.value = generatePassword();
         });
         
-        saveBtn.addEventListener('click', () => {
+        saveBtn.addEventListener('click', async () => {
             const companyName = companyNameInput.value.trim();
             const password = companyPasswordInput.value;
             
@@ -404,17 +409,51 @@
                 return;
             }
             
-            // Check for duplicate company name
-            if (existingCompanies.includes(companyName)) {
-                duplicateModal.classList.add('active');
-                return;
+            try {
+                // Show loading state
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Creating...';
+                
+                // Make API call to register dish seller
+                const response = await fetch('http://localhost:8083/api/dish-sellers/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        companyName: companyName,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 400 && errorData.message && errorData.message.includes("already exists")) {
+                        // Show duplicate name modal
+                        duplicateModal.classList.add('active');
+                    } else {
+                        throw new Error(errorData.message || 'Registration failed');
+                    }
+                    return;
+                }
+                
+                // Show success message with details
+                createdCompanyName.textContent = companyName;
+                generatedPassword.textContent = password;
+                successModal.classList.add('active');
+                
+                // In a real app, you might want to do something with the response
+                const data = await response.json();
+                console.log('Account created:', data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`An error occurred: ${error.message}`);
+            } finally {
+                // Reset button state
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Account';
             }
-            
-            // In a real app, you would send this data to your server here
-            console.log('Creating account:', { companyName, password });
-            
-            // Show success message
-            successModal.classList.add('active');
         });
         
         // Close modals
@@ -429,6 +468,16 @@
             companyNameInput.value = '';
             companyPasswordInput.value = '';
             companyNameInput.focus();
+        });
+        
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+            if (companyNameInput.value || companyPasswordInput.value) {
+                if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+                    companyNameInput.value = '';
+                    companyPasswordInput.value = '';
+                }
+            }
         });
     </script>
 </body>
